@@ -25,6 +25,7 @@ export type DatabaseConfig = {
   
   export type QueryRequest = {
     [table: string]: {
+      forEach(arg0: (field: any) => void): unknown;
       id?: number;
       select: string[];
       relations?: { [relation: string]: QueryRequest };

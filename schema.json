@@ -1,36 +1,49 @@
 {
-    "databases": {
-      "db1": {
-        "host": "localhost",
-        "port": 5432,
-        "user": "postgres",
-        "password": "mysecretpassword",
-        "database": "database1"
-      },
-      "db2": {
-        "host": "localhost",
-        "port": 5433,
-        "user": "postgres",
-        "password": "mysecretpassword",
-        "database": "database2"
+  "databases": {
+    "db1": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "mysecretpassword",
+      "database": "database1"
+    },
+    "db2": {
+      "host": "localhost",
+      "port": 5433,
+      "user": "postgres",
+      "password": "mysecretpassword",
+      "database": "database2"
+    }
+  },
+  "tables": {
+    "authors": {
+      "db": "db1",
+      "columns": [
+        "id",
+        "name"
+      ],
+      "relations": {
+        "books": {
+          "foreign_key": "id",
+          "reference": "author_id",
+          "table": "books"
+        }
       }
     },
-    "tables": {
-      "authors": {
-        "db": "db1",
-        "columns": ["id", "name"],
-        "relations": {
-          "books": {
-            "foreign_key": "id",
-            "reference": "author_id",
-            "table": "books"
-          }
+    "books": {
+      "db": "db1",
+      "columns": [
+        "id",
+        "title",
+        "author_id"
+      ],
+      "relations": {
+        "authors": {
+          "foreign_key": "author_id",
+          "reference": "id",
+          "table": "authors"
         }
-      },
-      "books": {
-        "db": "db2",
-        "columns": ["id", "title", "author_id"]
       }
     }
   }
-  
+}
