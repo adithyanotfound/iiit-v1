@@ -1,0 +1,22 @@
+{
+  "name": "graphql-v1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc -b && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "express": "^4.21.2",
+    "pg": "^8.13.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11"
+  }
+}
