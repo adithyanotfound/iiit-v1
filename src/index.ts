@@ -4,15 +4,16 @@ import fs from "fs";
 import { Schema, QueryRequest, TableSchema } from "./types";
 import router from "./generate";
 import dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 app.use("/api", router);
 
 // Load schema.json
-let schema: Schema;
+export let schema: Schema;
 try {
   schema = JSON.parse(fs.readFileSync("schema.json", "utf8"));
 } catch (error) {
@@ -562,10 +563,13 @@ app.post("/api/raw-sql", async (req: Request, res: Response) => {
   }
 });
 
+
+
 //@ts-ignore
 app.post("/api/config/load", async (req: Request, res: Response) => {
   try {
     const newSchema: Schema = req.body;
+
     
     // Validate the schema format
     if (!newSchema.databases || !newSchema.tables) {

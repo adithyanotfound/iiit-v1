@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction, response } from "express";
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
+import { schema } from ".";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -34,7 +35,6 @@ const asyncHandler =
 router.post(
   "/generate",
   asyncHandler(async (req: Request, res: Response) => {
-    const schema = req.body.schema;
     const prompt = req.body.prompt;
 
     console.log("schema: ", JSON.stringify(schema));
@@ -210,6 +210,23 @@ router.post(
         ${JSON.stringify(schema)}
 
         # Query Examples
+
+        Retrieve all authors with their books
+        {
+          "authors": {
+            "select": [
+              "id",
+              "name"
+            ],
+            "relations": {
+              "books": {
+                "select": [
+                  "title"
+                ]
+              }
+            }
+          }
+        }
 
         Basic Query with Filtering
 
