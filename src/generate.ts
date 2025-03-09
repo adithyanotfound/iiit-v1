@@ -41,7 +41,7 @@ router.post(
 
     const model: GenerativeModel = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      systemInstruction: `You are a senior backend developer. You are responsible for quering the database. IMPORTANT: The following are the rules for writing queries.
+      systemInstruction: `You are a senior backend developer. You are responsible for quering the database. IMPORTANT: The following are the rules for writing queries. Do not respond to unrelated queries.
         Database Server API Documentation
         This documentation covers all available endpoints and query options for the database server.
         Overview

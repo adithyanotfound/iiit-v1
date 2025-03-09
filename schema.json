@@ -1,47 +1,250 @@
 {
   "databases": {
-    "db1": {
+    "patients": {
       "host": "localhost",
       "port": 5432,
       "user": "postgres",
       "password": "mysecretpassword",
-      "database": "database1"
+      "database": "healthcare_patients"
     },
-    "db2": {
+    "medical": {
       "host": "localhost",
       "port": 5433,
       "user": "postgres",
       "password": "mysecretpassword",
-      "database": "database2"
+      "database": "healthcare_medical"
+    },
+    "billing": {
+      "host": "localhost",
+      "port": 5434,
+      "user": "postgres",
+      "password": "mysecretpassword",
+      "database": "healthcare_billing"
+    },
+    "pharmacy": {
+      "host": "localhost",
+      "port": 5435,
+      "user": "postgres",
+      "password": "mysecretpassword",
+      "database": "healthcare_pharmacy"
+    },
+    "insurance": {
+      "host": "localhost",
+      "port": 5436,
+      "user": "postgres",
+      "password": "mysecretpassword",
+      "database": "healthcare_insurance"
     }
   },
   "tables": {
-    "authors": {
-      "db": "db1",
+    "patients": {
+      "db": "patients",
       "columns": [
-        "id",
-        "name"
+        "patient_id",
+        "name",
+        "age",
+        "gender"
       ],
       "relations": {
-        "books": {
-          "foreign_key": "id",
-          "reference": "author_id",
-          "table": "books"
+        "appointments": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "appointments"
+        },
+        "medical_tests": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "medical_tests"
+        },
+        "bills": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "bills"
+        },
+        "pharmacy_orders": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "pharmacy_orders"
+        },
+        "insurance": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "insurance"
         }
       }
     },
-    "books": {
-      "db": "db1",
+    "appointments": {
+      "db": "patients",
       "columns": [
-        "id",
-        "title",
-        "author_id"
+        "appointment_id",
+        "patient_id",
+        "doctor_id",
+        "appointment_date"
       ],
       "relations": {
-        "authors": {
-          "foreign_key": "author_id",
-          "reference": "id",
-          "table": "authors"
+        "patients": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "patients"
+        },
+        "doctors": {
+          "foreign_key": "doctor_id",
+          "reference": "doctor_id",
+          "table": "doctors"
+        },
+        "prescriptions": {
+          "foreign_key": "appointment_id",
+          "reference": "appointment_id",
+          "table": "prescriptions"
+        }
+      }
+    },
+    "doctors": {
+      "db": "medical",
+      "columns": [
+        "doctor_id",
+        "name",
+        "specialty",
+        "experience"
+      ],
+      "relations": {
+        "appointments": {
+          "foreign_key": "doctor_id",
+          "reference": "doctor_id",
+          "table": "appointments"
+        }
+      }
+    },
+    "medical_tests": {
+      "db": "medical",
+      "columns": [
+        "test_id",
+        "patient_id",
+        "test_name",
+        "test_date"
+      ],
+      "relations": {
+        "patients": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "patients"
+        }
+      }
+    },
+    "bills": {
+      "db": "billing",
+      "columns": [
+        "bill_id",
+        "patient_id",
+        "total_amount",
+        "payment_status"
+      ],
+      "relations": {
+        "patients": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "patients"
+        },
+        "claims": {
+          "foreign_key": "bill_id",
+          "reference": "bill_id",
+          "table": "claims"
+        }
+      }
+    },
+    "prescriptions": {
+      "db": "billing",
+      "columns": [
+        "prescription_id",
+        "appointment_id",
+        "medicine",
+        "dosage"
+      ],
+      "relations": {
+        "appointments": {
+          "foreign_key": "appointment_id",
+          "reference": "appointment_id",
+          "table": "appointments"
+        }
+      }
+    },
+    "medications": {
+      "db": "pharmacy",
+      "columns": [
+        "medication_id",
+        "medicine_name",
+        "price",
+        "stock"
+      ],
+      "relations": {
+        "pharmacy_orders": {
+          "foreign_key": "medication_id",
+          "reference": "medication_id",
+          "table": "pharmacy_orders"
+        }
+      }
+    },
+    "pharmacy_orders": {
+      "db": "pharmacy",
+      "columns": [
+        "order_id",
+        "patient_id",
+        "medication_id",
+        "quantity",
+        "order_date"
+      ],
+      "relations": {
+        "patients": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "patients"
+        },
+        "medications": {
+          "foreign_key": "medication_id",
+          "reference": "medication_id",
+          "table": "medications"
+        }
+      }
+    },
+    "insurance": {
+      "db": "insurance",
+      "columns": [
+        "insurance_id",
+        "patient_id",
+        "provider",
+        "policy_number"
+      ],
+      "relations": {
+        "patients": {
+          "foreign_key": "patient_id",
+          "reference": "patient_id",
+          "table": "patients"
+        },
+        "claims": {
+          "foreign_key": "insurance_id",
+          "reference": "insurance_id",
+          "table": "claims"
+        }
+      }
+    },
+    "claims": {
+      "db": "insurance",
+      "columns": [
+        "claim_id",
+        "insurance_id",
+        "bill_id",
+        "claim_status"
+      ],
+      "relations": {
+        "insurance": {
+          "foreign_key": "insurance_id",
+          "reference": "insurance_id",
+          "table": "insurance"
+        },
+        "bills": {
+          "foreign_key": "bill_id",
+          "reference": "bill_id",
+          "table": "bills"
         }
       }
     }
