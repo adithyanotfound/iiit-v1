@@ -5,6 +5,7 @@ This documentation covers all available endpoints and query options for the data
 ## Overview
 
 This server provides a flexible API for querying data across multiple PostgreSQL databases. It supports:
+
 - Standard queries with filtering, sorting and pagination
 - Relation-based queries with automatic joins
 - Cross-database joins
@@ -16,6 +17,7 @@ The server uses a schema definition file (`schema.json`) to validate all queries
 ## Connection Management
 
 The server automatically:
+
 - Creates connection pools for all databases defined in schema.json
 - Tests connections at startup
 - Maintains connection pooling settings (timeout, max connections)
@@ -57,32 +59,32 @@ The main endpoint for querying data from tables with support for filtering, rela
 
 #### Query Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `select` | string[] | Columns to select (defaults to all columns if omitted) |
-| `orderBy` | string \| string[] \| object | Sorting options (can be a single field, array of fields, or object with field/direction) |
-| `limit` | number | Maximum number of records to return |
-| `offset` | number | Number of records to skip |
-| `groupBy` | string[] | Fields to group results by |
-| `relations` | object | Define related data to load with the query |
+| Option      | Type                         | Description                                                                              |
+| ----------- | ---------------------------- | ---------------------------------------------------------------------------------------- |
+| `select`    | string[]                     | Columns to select (defaults to all columns if omitted)                                   |
+| `orderBy`   | string \| string[] \| object | Sorting options (can be a single field, array of fields, or object with field/direction) |
+| `limit`     | number                       | Maximum number of records to return                                                      |
+| `offset`    | number                       | Number of records to skip                                                                |
+| `groupBy`   | string[]                     | Fields to group results by                                                               |
+| `relations` | object                       | Define related data to load with the query                                               |
 
 #### Filter Operators
 
-| Operator | Example | Description |
-|----------|---------|-------------|
-| `=` (default) | `"field": "value"` | Exact match |
-| `gt` | `"field": { "gt": 100 }` | Greater than |
-| `lt` | `"field": { "lt": 100 }` | Less than |
-| `gte` | `"field": { "gte": 100 }` | Greater than or equal |
-| `lte` | `"field": { "lte": 100 }` | Less than or equal |
-| `like` | `"field": { "like": "%text%" }` | LIKE pattern match (case-sensitive) |
-| `ilike` | `"field": { "ilike": "%text%" }` | ILIKE pattern match (case-insensitive) |
-| `neq` | `"field": { "neq": "value" }` | Not equal to |
-| `in` | `"field": { "in": [1, 2, 3] }` | Value is in array |
-| `notIn` | `"field": { "notIn": [1, 2, 3] }` | Value is not in array |
-| `between` | `"field": { "between": [1, 10] }` | Value is between two values (inclusive) |
-| `isNull` | `"field": { "isNull": true }` | Field is NULL |
-| `isNotNull` | `"field": { "isNotNull": true }` | Field is NOT NULL |
+| Operator      | Example                           | Description                             |
+| ------------- | --------------------------------- | --------------------------------------- |
+| `=` (default) | `"field": "value"`                | Exact match                             |
+| `gt`          | `"field": { "gt": 100 }`          | Greater than                            |
+| `lt`          | `"field": { "lt": 100 }`          | Less than                               |
+| `gte`         | `"field": { "gte": 100 }`         | Greater than or equal                   |
+| `lte`         | `"field": { "lte": 100 }`         | Less than or equal                      |
+| `like`        | `"field": { "like": "%text%" }`   | LIKE pattern match (case-sensitive)     |
+| `ilike`       | `"field": { "ilike": "%text%" }`  | ILIKE pattern match (case-insensitive)  |
+| `neq`         | `"field": { "neq": "value" }`     | Not equal to                            |
+| `in`          | `"field": { "in": [1, 2, 3] }`    | Value is in array                       |
+| `notIn`       | `"field": { "notIn": [1, 2, 3] }` | Value is not in array                   |
+| `between`     | `"field": { "between": [1, 10] }` | Value is between two values (inclusive) |
+| `isNull`      | `"field": { "isNull": true }`     | Field is NULL                           |
+| `isNotNull`   | `"field": { "isNotNull": true }`  | Field is NOT NULL                       |
 
 #### Response Format
 
@@ -146,17 +148,17 @@ Performs joins across tables that may exist in different databases.
 
 #### Join Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `mainTable` | string | Primary table to query |
-| `mainSelect` | string[] | Fields to select from main table |
-| `mainFilters` | object | Filters to apply to main table |
-| `joins` | array | Array of tables to join |
-| `joins[].table` | string | Related table name |
-| `joins[].select` | string[] | Fields to select from related table |
-| `joins[].localKey` | string | Field in main table for join |
-| `joins[].foreignKey` | string | Field in related table for join |
-| `joins[].filters` | object | Additional filters for related table |
+| Option               | Type     | Description                          |
+| -------------------- | -------- | ------------------------------------ |
+| `mainTable`          | string   | Primary table to query               |
+| `mainSelect`         | string[] | Fields to select from main table     |
+| `mainFilters`        | object   | Filters to apply to main table       |
+| `joins`              | array    | Array of tables to join              |
+| `joins[].table`      | string   | Related table name                   |
+| `joins[].select`     | string[] | Fields to select from related table  |
+| `joins[].localKey`   | string   | Field in main table for join         |
+| `joins[].foreignKey` | string   | Field in related table for join      |
+| `joins[].filters`    | object   | Additional filters for related table |
 
 #### Response Format
 
@@ -200,11 +202,11 @@ Execute raw SQL queries directly against a database (admin use only).
 
 #### Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `db` | string | Database name to execute against (must match schema.json) |
-| `sql` | string | Raw SQL query to execute |
-| `params` | array | Optional parameters for prepared statement |
+| Option   | Type   | Description                                               |
+| -------- | ------ | --------------------------------------------------------- |
+| `db`     | string | Database name to execute against (must match schema.json) |
+| `sql`    | string | Raw SQL query to execute                                  |
+| `params` | array  | Optional parameters for prepared statement                |
 
 #### Response Format
 
@@ -231,7 +233,7 @@ Check the health and connection status of all configured databases.
 {
   "status": {
     "database1": "connected",
-    "database2": "connected" 
+    "database2": "connected"
   },
   "message": "All systems operational"
 }
@@ -311,6 +313,7 @@ The server returns appropriate HTTP status codes and detailed error messages:
 - `503` - Service Unavailable: Database connection issues
 
 Error responses include:
+
 - Error message
 - Stack trace (in development mode only)
 
