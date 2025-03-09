@@ -562,6 +562,148 @@ app.post("/api/raw-sql", async (req: Request, res: Response) => {
   }
 });
 
+//@ts-ignore
+app.post("/api/config/load", async (req: Request, res: Response) => {
+  try {
+    const newSchema: Schema = req.body;
+    
+    // Validate the schema format
+    if (!newSchema.databases || !newSchema.tables) {
+      return res.status(400).json({ 
+        error: "Invalid schema format. Must contain 'databases' and 'tables' properties." 
+      });
+    }
+    
+    // Validate database configurations
+    for (const [dbName, config] of Object.entries(newSchema.databases)) {
+      if (!config.host || !config.port || !config.user || !config.database) {
+        return res.status(400).json({
+          error: `Invalid connection configuration for database "${dbName}". Required fields: host, port, user, database.`
+        });
+      }
+    }
+    
+    // Validate tables and relations
+    for (const [tableName, tableConfig] of Object.entries(newSchema.tables)) {
+      // Check if the referenced database exists
+      if (!newSchema.databases[tableConfig.db]) {
+        return res.status(400).json({ 
+          error: `Table "${tableName}" references non-existent database "${tableConfig.db}"` 
+        });
+      }
+      
+      // Check relations if they exist
+      if (tableConfig.relations) {
+        for (const [relationName, relation] of Object.entries(tableConfig.relations)) {
+          // Check if the related table exists
+          if (!newSchema.tables[relation.table]) {
+            return res.status(400).json({ 
+              error: `Relation "${relationName}" in table "${tableName}" references non-existent table "${relation.table}"` 
+            });
+          }
+          
+          // Check if the referenced columns exist
+          if (!tableConfig.columns.includes(relation.foreign_key)) {
+            return res.status(400).json({ 
+              error: `Foreign key "${relation.foreign_key}" not found in columns of table "${tableName}"` 
+            });
+          }
+          
+          const relatedTable = newSchema.tables[relation.table];
+          if (!relatedTable.columns.includes(relation.reference)) {
+            return res.status(400).json({ 
+              error: `Reference column "${relation.reference}" not found in columns of table "${relation.table}"` 
+            });
+          }
+        }
+      }
+    }
+    
+    // Close all existing database connections
+    const closePromises = Object.values(dbPools).map(pool => pool.end());
+    await Promise.all(closePromises);
+    
+    // Clear the existing pools
+    for (const key in dbPools) {
+      delete dbPools[key];
+    }
+    
+    // Test database connections before committing
+    const connectionResults: { [dbName: string]: { success: boolean, error?: string } } = {};
+    const testConnections = Object.entries(newSchema.databases).map(async ([dbName, config]) => {
+      try {
+        const testPool = new Pool({
+          host: config.host,
+          port: config.port,
+          user: config.user,
+          password: config.password,
+          database: config.database,
+          connectionTimeoutMillis: 5000,
+        });
+        
+        // Test the connection
+        await testPool.query('SELECT 1');
+        await testPool.end();
+        
+        connectionResults[dbName] = { success: true };
+        return true;
+      } catch (error) {
+        connectionResults[dbName] = { 
+          success: false, 
+          error: (error as Error).message 
+        };
+        return false;
+      }
+    });
+    
+    const connectionTestResults = await Promise.all(testConnections);
+    
+    // Check if all connections were successful
+    if (connectionTestResults.includes(false)) {
+      return res.status(400).json({
+        error: "Failed to connect to one or more databases",
+        details: connectionResults
+      });
+    }
+    
+    // All tests passed, save the schema
+    fs.writeFileSync("schema.json", JSON.stringify(newSchema, null, 2), "utf8");
+    
+    // Update the in-memory schema
+    schema = newSchema;
+    
+    // Establish actual database connections
+    for (const [dbName, config] of Object.entries(newSchema.databases)) {
+      dbPools[dbName] = new Pool({
+        host: config.host,
+        port: config.port,
+        user: config.user,
+        password: config.password,
+        database: config.database,
+        connectionTimeoutMillis: 5000,
+        max: 20,
+        idleTimeoutMillis: 30000,
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Schema loaded and all database connections established successfully",
+      connectionDetails: Object.keys(dbPools).map(db => ({
+        database: db,
+        connected: true
+      }))
+    });
+    
+  } catch (error) {
+    console.error("Failed to load schema and establish connections:", error);
+    res.status(500).json({
+      error: "Failed to load schema configuration",
+      details: (error as Error).message
+    });
+  }
+});
+
 // Health check endpoint
 //@ts-ignore
 app.get("/api/health", async (req: Request, res: Response) => {

@@ -18,7 +18,10 @@
   "tables": {
     "authors": {
       "db": "db1",
-      "columns": ["id", "name"],
+      "columns": [
+        "id",
+        "name"
+      ],
       "relations": {
         "books": {
           "foreign_key": "id",
@@ -29,7 +32,11 @@
     },
     "books": {
       "db": "db1",
-      "columns": ["id", "title", "author_id"],
+      "columns": [
+        "id",
+        "title",
+        "author_id"
+      ],
       "relations": {
         "authors": {
           "foreign_key": "author_id",
